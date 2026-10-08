@@ -112,4 +112,14 @@ router.put('/disputes/:id/resolve', authenticateToken, authorizeRole(['admin']),
   }
 });
 
+router.post('/seed', authenticateToken, authorizeRole(['admin']), async (req, res, next) => {
+  try {
+    const { seedDatabase } = require('../db/seed');
+    await seedDatabase();
+    res.json({ success: true, message: 'Database successfully seeded with test users and sample data' });
+  } catch (err) {
+    next(err);
+  }
+});
+
 module.exports = router;

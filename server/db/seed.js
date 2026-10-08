@@ -322,10 +322,18 @@ async function seedDatabase() {
     for (const [email, user] of Object.entries(insertedUsers)) {
       console.log(`  ${email} (${user.role})`);
     }
+    return { success: true, seededUsers: insertedUsers };
   } catch (err) {
     console.error('Database seeding failed:', err.message);
-    process.exit(1);
+    if (require.main === module) {
+      process.exit(1);
+    }
+    throw err;
   }
 }
 
-seedDatabase();
+if (require.main === module) {
+  seedDatabase();
+}
+
+module.exports = { seedDatabase };

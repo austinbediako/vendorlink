@@ -9,6 +9,7 @@ const bookingRoutes = require('./routes/bookings');
 const ratingRoutes = require('./routes/ratings');
 const adminRoutes = require('./routes/admin');
 const disputeRoutes = require('./routes/disputes');
+const { initializeDatabase } = require('./db/init');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -66,8 +67,9 @@ app.use((err, req, res, next) => {
 });
 
 if (process.env.NODE_ENV !== 'test') {
-  app.listen(PORT, () => {
+  app.listen(PORT, async () => {
     console.log(`Server running on port ${PORT}`);
+    await initializeDatabase();
   });
 }
 
