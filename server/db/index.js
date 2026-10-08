@@ -1,7 +1,17 @@
 const { Pool } = require('pg');
 
+const isProduction = process.env.NODE_ENV === 'production';
+const requiresSsl = process.env.DATABASE_URL && (process.env.DATABASE_URL.includes('sslmode=require') || isProduction);
+
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
+  ...(requiresSsl
+    ? {
+        ssl: {
+          rejectUnauthorized: false,
+        },
+      }
+    : {}),
 });
 
 pool.on('error', (err) => {

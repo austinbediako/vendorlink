@@ -13,7 +13,35 @@ const disputeRoutes = require('./routes/disputes');
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-app.use(cors());
+const allowedOrigins = [
+  'https://vendorlink-mocha.vercel.app',
+  'http://localhost:5173',
+  'http://localhost:3000',
+  process.env.FRONTEND_URL,
+].filter(Boolean).map(url => url.replace(/\/$/, ''));
+
+const corsOptions = {
+  origin: (origin, callback) => {
+    // Allow requests with no origin (such as mobile apps, curl, server-to-server)
+    if (!origin) return callback(null, true);
+    const normalizedOrigin = origin.replace(/\/$/, '');
+    if (
+      allowedOrigins.includes(normalizedOrigin) ||
+      process.env.NODE_ENV !== 'production' ||
+      /\.vercel\.app$/.test(new URL(origin).hostname)
+    ) {
+      callback(null, true);
+    } else {
+      callback(new Error(`CORS blocked for origin: ${origin}`));
+    }
+  },
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+};
+
+app.use(cors(corsOptions));
+app.options('*', cors(corsOptions));
 app.use(express.json());
 
 app.use('/api/auth', authRoutes);
